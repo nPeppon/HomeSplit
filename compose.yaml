@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    container_name: homesplit_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PGUSER:-homesplit}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-homesplit}
+      POSTGRES_DB: ${PGDATABASE:-homesplit}
+    volumes:
+      - "${PGDATA_PATH:-../postgres/HomeSplit/pgdata}:/var/lib/postgresql/data"
+    ports:
+      - "${PGPORT:-5434}:5432"
+
+  app:
+    build: .
+    container_name: homesplit_app
+    depends_on:
+      - db
+    ports:
+      - "${STREAMLIT_PORT:-8502}:8501"
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${PGUSER:-homesplit}:${PGPASSWORD:-homesplit}@db:5432/${PGDATABASE:-homesplit}}
+    command: streamlit run -m homesplit.app --server.port ${STREAMLIT_PORT:-8502} --server.address 0.0.0.0
+
+  migrations:
+    build: .
+    profiles: ["migrate"]
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${PGUSER:-homesplit}:${PGPASSWORD:-homesplit}@db:5432/${PGDATABASE:-homesplit}}
+    command: alembic upgrade head

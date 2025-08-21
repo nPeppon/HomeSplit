@@ -1,0 +1,28 @@
+[project]
+name = "homesplit"
+version = "0.1.0"
+description = "Streamlit app for household expenses management"
+authors = [
+    {name = "nPeppon"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "streamlit>=1.30",
+    "psycopg[binary]>=3.1",
+    "alembic>=1.12",
+    "SQLAlchemy>=2.0",
+]
+
+[project.scripts]
+homesplit = "homesplit.app:main"
+
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
